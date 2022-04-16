@@ -1,5 +1,6 @@
 from mesa import Agent, Model
-import enum
+from enum import Enum
+import random
 
 class LifeStage(Enum):
     Egg = 1
@@ -7,10 +8,14 @@ class LifeStage(Enum):
     Pupa = 3
     Adult = 4
 
-class Mosquito:
-    def __init__(self, sex, infected, mated, stage, model):
-        self.sex = sex              # false = male, true = female
-        self.infected = infected    
-        self.mated = mated
-        self.stage = stage
-        self.model = model
+class Mosquito(Agent):
+    def __init__(self, unique_id, model):
+        super().__init__(unique_id, model)
+        self.sex = random.getrandbits(1)    # false = male, true = female
+        self.infected = False    
+        self.mated = False          
+        self.stage = LifeStage.Egg          # from LifeStage enum class
+
+    def step(self):
+        # TODO method for time keeping fopr each mosquito
+        print("TODO")
