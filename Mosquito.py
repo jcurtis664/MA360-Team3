@@ -1,4 +1,3 @@
-from cmath import inf
 from mesa import Agent, Model
 from enum import Enum
 import random
