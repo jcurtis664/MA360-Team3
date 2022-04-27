@@ -8,6 +8,6 @@ Necessary Packages:
 	
 Assumptions:
 	
-	Change mosquito portrayal image to match your file structure
+	Change mosquito portrayal image (in Model_viz.py) to match your file structure
 	
 	Run from command prompt
