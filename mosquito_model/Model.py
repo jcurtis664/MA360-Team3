@@ -71,10 +71,10 @@ class Model(Model):
                 self.schedule.remove(agent)
                 self.total_alive -= 1
             
-    def add_agents(self, number_of_agents):
+    def add_agents(self, number_of_agents, location):
         for i in range(self.agents, self.agents + number_of_agents):
-            x = self.random.randrange(self.grid.width)
-            y = self.random.randrange(self.grid.height)
+            x = location[0]
+            y = location[1]
             
             agent = Mosquito(i, self, False, [x, y], 1)
             

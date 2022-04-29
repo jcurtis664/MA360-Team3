@@ -5,6 +5,7 @@ Created on Tue Apr 26 17:17:55 2022
 @author: jared
 """
 from Model import *
+from Mosquito import LifeStage
 from mesa.visualization.modules import CanvasGrid
 from mesa.visualization.ModularVisualization import ModularServer
 from mesa.visualization.modules import ChartModule
@@ -61,11 +62,16 @@ def agent_portrayal(agent):
                      "Color": "red",
                      "Filled": "true",
                      "Layer": 0,
-                     "r": 0.5}
-    else:
-        portrayal = {"Shape": "D:\\Repos\\MA360\\mosquito_model\\resources\\mosquito3.png",
+                     "r": 0.5} 
+    elif (agent.stage == LifeStage.Egg):
+        portrayal = {"Shape": "C:\\Users\\12032\\embry_riddle\\ma360\\mosquito_model\\resources\\eggs.png",
+                     "Scale": 1,
+                     "Layer": 1}   
+    elif (agent.stage == LifeStage.Adult):
+        portrayal = {"Shape": "C:\\Users\\12032\\embry_riddle\\ma360\\mosquito_model\\resources\\mosquito3.png",
                      "Scale": 1,
                      "Layer": 1}
+        
     return portrayal
 
 grid = CanvasGrid(agent_portrayal, 50, 50, 750, 750)

@@ -4,11 +4,10 @@ import random
 
 
 '''=======PARAMETERS======='''
-egg_survival_chance = 0.99
+egg_survival_chance = 0.88
 larva_survival_chance = 0.9
 pupa_survival_chance = 0.9
 adult_survival_chance = 0.9
-chance_of_mating = 0.9
 
 
 class LifeStage(Enum):
@@ -24,13 +23,18 @@ class Mosquito(Agent):
         self.sex = random.randint(0, 1)     # 0 = male, 1 = female
         self.infected = infected       
         self.stage = LifeStage(stage)          # from LifeStage enum class
-        self.mated = False
-        
         self.survival_chance = egg_survival_chance
-        self.mating_chance = random.uniform(0.6, 0.9)
-        self.days_til_advance = random.randint(10, 20)
+        self.mating_chance = random.uniform(0.6, 0.8)
+        
+        if (stage == LifeStage.Egg):
+            self.days_til_advance = random.randint(8, 15)
+            self.mated = False
+        else:
+            self.days_til_advance = random.randint(7, 10)
+            self.mated = random.randint(0, 1)
+        
         self.days_since_advance = 0
-        self.days_til_mate = 0
+        self.days_til_mate = random.randint(0, 5)
         
         self.location = [location[0], location[1]]
 
@@ -45,13 +49,13 @@ class Mosquito(Agent):
         
     def mate(self):
         neighbors = self.model.grid.get_cell_list_contents([self.pos])
-        #print(neighbors)
         if (len(neighbors) > 1):
             for chosen_neighbor in neighbors:
                 if (self.mating_chance > random.random() and \
                         chosen_neighbor.mating_chance > random.random() and \
                         self.sex != chosen_neighbor.sex and \
-                        not self.mated and not chosen_neighbor.mated):
+                        not self.mated and not chosen_neighbor.mated and \
+                        chosen_neighbor.stage == LifeStage.Adult):
                     
                     self.mating_chance = self.mating_chance / 2
                     self.survival_chance = self.survival_chance / 2
@@ -63,9 +67,9 @@ class Mosquito(Agent):
                     chosen_neighbor.mated = True
                     
                     if not (chosen_neighbor.infected or self.infected):
-                        self.model.add_agents(random.randint(15, 20))     
-                if (len(neighbors) > 10):
-                    self.survival_chance = self.survival_chance / 2
+                        self.model.add_agents(random.randint(20, 30), self.location)     
+                #if (len(neighbors) > 10):
+                    #self.survival_chance = self.survival_chance / 2
 
     def step(self):
         if (self.stage == LifeStage.Egg):
@@ -76,7 +80,11 @@ class Mosquito(Agent):
                 self.survival_chance = adult_survival_chance
                 
                 self.days_since_advance = 0
-                self.days_til_advance = random.randint(7, 9)
+                self.days_til_advance = random.randint(7, 10)
+                self.model.grid.remove_agent(self)
+                self.model.grid.place_agent(self, (self.location[0], self.location[1]))
+                self.days_til_mate = random.randint(2, 5)
+                print(self.stage)
         
         elif (self.stage == LifeStage.Adult):
             #print("Stage 4 - Adult")
@@ -86,7 +94,7 @@ class Mosquito(Agent):
             else:
                 if (self.days_til_mate < 1):
                     self.mate()
-                self.days_til_mate += 1
+                self.days_til_mate -= 1
                 self.move()
                 self.mated = False
                 
