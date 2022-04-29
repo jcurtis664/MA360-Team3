@@ -5,24 +5,26 @@ import random
 from mesa.space import MultiGrid
 from mesa.datacollection import DataCollector
 
-
 '''=======PARAMETERS======='''
-num_of_mosquitoes = 550
-num_of_infected = 50
-num_of_days = 10
+# moved to model __init__()
+# num_of_mosquitoes = 550
+# num_of_infected = 50
+# num_of_days = 10
 
 def compute_gini(model):
     return model.total_alive
 
 class Model(Model):
-    def __init__(self, N, number_of_infected, grid_width, grid_height):      # N = number of agents
+    def __init__(self, number_of_agents, number_of_infected, number_of_days, release_frequency, grid_width, grid_height):      # N = number of agents
         super().__init__()
-        self.agents = N
+        self.agents = number_of_agents
         self.number_of_infected = number_of_infected
+        self.number_of_days = number_of_days
+        self.release_frequency = release_frequency
         self.grid = MultiGrid(grid_width, grid_height, True)
         self.schedule = SimultaneousActivation(self)
         
-        for i in range(N - number_of_infected):
+        for i in range(number_of_agents - number_of_infected):
             x = self.random.randrange(self.grid.width)
             y = self.random.randrange(self.grid.height)
             
@@ -31,7 +33,7 @@ class Model(Model):
             self.schedule.add(agent)
             self.grid.place_agent(agent, (x, y))
             
-        for i in range(N - number_of_infected, N):
+        for i in range(number_of_agents - number_of_infected, number_of_agents):
             x = self.random.randrange(self.grid.width)
             y = self.random.randrange(self.grid.height)
             
@@ -42,7 +44,7 @@ class Model(Model):
             
         self.running = True
         self.killed_agents = []
-        self.total_alive = N
+        self.total_alive = number_of_agents
         
         self.datacollector = DataCollector(
             model_reporters={"Gini": compute_gini}
