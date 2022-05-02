@@ -5,51 +5,44 @@ import random
 from mesa.space import MultiGrid
 from mesa.datacollection import DataCollector
 
-'''=======PARAMETERS======='''
-# moved to model __init__()
-# num_of_mosquitoes = 550
-# num_of_infected = 50
-# num_of_days = 10
-
 def compute_gini(model):
     return model.total_alive
 
 class Model(Model):
-    def __init__(self, number_of_agents, number_of_infected, number_of_days, release_frequency, grid_width, grid_height):      # N = number of agents
+    def __init__(self, N, number_of_infected, release_frequency, grid_width, grid_height):      # N = number of agents
         super().__init__()
-        self.agents = number_of_agents
+        self.agents = N
         self.number_of_infected = number_of_infected
-        self.number_of_days = number_of_days
-        self.release_frequency = release_frequency
         self.grid = MultiGrid(grid_width, grid_height, True)
         self.schedule = SimultaneousActivation(self)
-        
-        for i in range(number_of_agents - number_of_infected):
-            x = self.random.randrange(self.grid.width)
-            y = self.random.randrange(self.grid.height)
-            
-            agent = Mosquito(i, self, False, [x, y], 4)
-            
-            self.schedule.add(agent)
-            self.grid.place_agent(agent, (x, y))
-            
-        for i in range(number_of_agents - number_of_infected, number_of_agents):
-            x = self.random.randrange(self.grid.width)
-            y = self.random.randrange(self.grid.height)
-            
-            agent = Mosquito(i, self, True, [x, y], 4)
-
-            self.schedule.add(agent)
-            self.grid.place_agent(agent, (x, y))
-            
         self.running = True
         self.killed_agents = []
-        self.total_alive = number_of_agents
-        
+        self.total_alive = N
+        self.release_frequency = release_frequency
+        self.day = 1
         self.datacollector = DataCollector(
             model_reporters={"Gini": compute_gini}
         )
+        
+        for i in range(N - number_of_infected):
+            x = self.random.randrange(self.grid.width)
+            y = self.random.randrange(self.grid.height)
+            
+            agent = Mosquito(i, self, False, [x, y], random.choice([1, 4]), random.randint(0, 1))
+            
+            self.schedule.add(agent)
+            self.grid.place_agent(agent, (x, y))
+            
+        for i in range(N - number_of_infected, N):
+            x = self.random.randrange(self.grid.width)
+            y = self.random.randrange(self.grid.height)
+            
+            agent = Mosquito(i, self, True, [x, y], 4, 0)
 
+            self.schedule.add(agent)
+            self.grid.place_agent(agent, (x, y))
+            
+        
     def step(self):
         self.killed_agents = []
         
@@ -60,7 +53,32 @@ class Model(Model):
             self.grid.remove_agent(agent)
             self.schedule.remove(agent)
             self.total_alive -= 1
+            
+        if (self.day % self.release_frequency == 0):
+            for i in range(self.agents, self.agents + self.number_of_infected):
+                random_agent = self.random.choice(self.schedule.agents)
+                
+                if (random_agent.location[0] > 5 and random_agent.location[0] < self.grid.width - 5):
+                    x = random_agent.location[0] + random.randint(-5, 5)
+                else:
+                    x = random_agent.location[0]
+                    
+                if (random_agent.location[1] > 5 and random_agent.location[1] < self.grid.height - 5):
+                    y = random_agent.location[1] + random.randint(-5, 5)
+                else:
+                    y = random_agent.location[1]
+                
+                agent = Mosquito(i, self, True, [x, y], 4, 0)
+                
+                self.agents += 1
+                self.total_alive += 1
     
+                self.schedule.add(agent)
+                self.grid.place_agent(agent, (x, y))
+            
+        self.day += 1
+    
+    '''
     def run_model(self, step_count=100):
         for i in range(step_count):
             self.killed_agents = []
@@ -69,14 +87,15 @@ class Model(Model):
                 print("he dead")
                 self.grid.remove_agent(agent)
                 self.schedule.remove(agent)
-                self.total_alive -= 1
+                self.total_alive -= 1'''
+            
             
     def add_agents(self, number_of_agents, location):
         for i in range(self.agents, self.agents + number_of_agents):
             x = location[0]
             y = location[1]
             
-            agent = Mosquito(i, self, False, [x, y], 1)
+            agent = Mosquito(i, self, False, [x, y], 1, random.randint(0, 1))
             
             self.schedule.add(agent)
             self.agents += 1

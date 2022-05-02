@@ -11,11 +11,10 @@ from mesa.visualization.ModularVisualization import ModularServer
 from mesa.visualization.modules import ChartModule
 from mesa.visualization.UserParam import UserSettableParameter
 
-
 '''=======Sliders========'''
 
 simulation_params = {
-    "number_of_agents":UserSettableParameter(
+    "N":UserSettableParameter(
         "slider",
         "Number of Agents",
         1000,     # default
@@ -28,19 +27,10 @@ simulation_params = {
         "slider",
         "Number of Infected",
         50,      # default
-        10,       # min
+        0,       # min
         500,     # max
         10,       # step
         description="How many mosquitos should initially be infected"
-    ),
-    "number_of_days":UserSettableParameter(
-        "slider",
-        "Number of Days",
-        30,
-        5,
-        300,
-        5,
-        description="How many days the simulation will run for"
     ),
     "release_frequency":UserSettableParameter(
         "slider",
@@ -54,7 +44,6 @@ simulation_params = {
     "grid_width": 50,
     "grid_height": 50
 }
-
 
 def agent_portrayal(agent):
     if (agent.infected):
